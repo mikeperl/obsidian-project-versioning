@@ -1,0 +1,19 @@
+name: Feature request
+description: Suggest an improvement to Project Versioning.
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or workflow
+      description: What versioning problem are you trying to solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed improvement
+      description: Describe the behavior you would find useful.
+    validations:
+      required: true

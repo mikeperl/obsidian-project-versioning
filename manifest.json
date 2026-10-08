@@ -1,0 +1,9 @@
+{
+	"id": "project-versioning",
+	"name": "Project Versioning",
+	"version": "2.3.17",
+	"minAppVersion": "1.13.0",
+	"description": "Create complete project snapshots, compare versions, and audit changes without Git or external tools.",
+	"author": "Michael Perlitz",
+	"isDesktopOnly": true
+}

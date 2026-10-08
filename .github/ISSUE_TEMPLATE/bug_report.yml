@@ -1,0 +1,41 @@
+name: Bug report
+description: Report a reproducible problem with Project Versioning.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping improve Project Versioning. Please do not include private vault contents in this report.
+  - type: input
+    id: version
+    attributes:
+      label: Plugin version
+      placeholder: e.g. 2.3.17
+    validations:
+      required: true
+  - type: input
+    id: obsidian
+    attributes:
+      label: Obsidian version and operating system
+      placeholder: Obsidian 1.13.x on Windows 11
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the problem and the expected behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Use a disposable test project if the steps could reveal private file names or contents.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant error text
+      description: Remove private paths, file names, and note content before posting.
