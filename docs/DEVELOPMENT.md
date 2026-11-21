@@ -80,9 +80,14 @@ Production output is a minified `main.js`. `main.js` is intentionally ignored by
 4. Run `npm audit`, then `npm run check`.
 5. Commit and push the source.
 6. Wait for ordinary branch CI to pass on Ubuntu and Windows.
-7. Create and push an annotated tag whose text exactly matches the manifest version, for example `git tag -a 2.3.17 -m "2.3.17"`.
+7. Create and push an annotated tag whose text exactly matches the manifest version, for example `git tag -a <approved-version> -m "<approved-version>"`.
 8. The release workflow rebuilds and verifies the plugin, generates build-provenance attestations for the release assets, and creates a draft GitHub release containing `main.js`, `manifest.json`, and `styles.css`.
 9. Inspect the draft release, edit its notes as needed, and publish it manually.
 10. Install the assets downloaded from the published GitHub release in a disposable Obsidian vault for a final smoke test.
 
 The release tag must be the exact version, with no `v` prefix.
+
+
+## Recovery build limitation (v2.3.19)
+
+The supplied `main.js` in the separate test plugin package is produced by `scripts/recovery-bundle.mjs`, not by the production build. It is unminified and must not be published. The source package does not require a checked-in `main.js`. To prepare release assets, run `npm ci`, `npm audit`, and `npm run check` in a clean environment with the correct esbuild binary. The production build must be minified, and Windows/Ubuntu CI plus manual Windows Obsidian testing must pass on the exact output before publication.

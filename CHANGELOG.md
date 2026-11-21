@@ -1,5 +1,88 @@
 # Changelog
 
+## 2.6.2 — Windows linked-configuration exclusion correction (development/release candidate; not published)
+
+- Canonicalize both the vault configuration directory and included linked-folder targets before computing archive exclusions. This prevents alternate directory aliases or Windows junction path representations from bypassing **Exclude Obsidian configuration folder**.
+- Preserve the logical ZIP paths needed to identify omissions, including the actual configuration directory, junction aliases, and links pointing into or above that directory. Unresolvable configuration directories cause a guarded error rather than an unchecked snapshot.
+- Added a regression that fails against the earlier implementation when the configuration path itself is an alias; it verifies exclusion through multiple links, omission reasons, ordinary-file inclusion, and unchanged sources.
+- No new user-facing capabilities or changes to full-archive defaults, project identities, managed history, retention, export, or cleanup.
+- Local core regression suite, TypeScript, ESLint and submission audit passed. Windows GitHub Actions and the exact rebuilt production plugin still require verification; this is not a published release.
+
+## 2.6.1 — Initial community-release preparation (release candidate; not yet published)
+
+- Updated public-facing README, user guide, and security disclosures for the v2.6.x feature set.
+- Replaced personally identifying project names, paths, and document references in guide examples and illustrative screenshots with fictional examples.
+- Added an optional PayPal funding link to the plugin manifest and GitHub funding configuration.
+- No additional runtime features are introduced by these documentation and funding changes.
+- Final production artifact verification and Community directory acceptance remain separate publication steps.
+
+## 2.6.0 — Comic-book archives and Obsidian configuration exclusion (development candidate, not released)
+
+- Expanded **Exclude all picture files** in Selective archive to cover CBR, CBZ, CB7 and CBT comic-book archives, regardless of file size. PDFs remain controlled by their own checkbox.
+- Added **Exclude Obsidian configuration folder** to Selective archive. Uses the actual `Vault.configDir` from the Obsidian host, including nonstandard configuration-directory names; the option is off for all previously saved projects.
+- Excludes configuration files from the ZIP and records each omitted file in the preview and Archive Information JSON/Markdown. Previous files omitted by the new policy are classified separately from deleted source files in comparisons. Markdown protection does not override this explicit folder exclusion.
+- Applies the same configuration-folder protection when an included directory junction/symbolic link exposes the vault settings under another archive path.
+- Added core regression tests for comic extensions, custom configuration folders, linked aliases, migration defaults, comparison continuity, and unchanged source files. Updated manual testing and documentation.
+- No public release is authorized: a clean production build, platform CI, and Obsidian host testing remain required for this candidate.
+
+
+## 2.5.1 — Local-date safety regression test fix (development candidate, not released)
+
+- Corrected the atomic snapshot rollback regression test to construct its conflicting report path using the same local calendar date as snapshot filenames, rather than UTC `toISOString()`.
+- This prevents a false test failure on systems whose local date differs from UTC (for example, evenings in the Eastern time zone).
+- No production snapshot, archiving, report, safety, or user-interface behavior was modified.
+- Automated tests must still be run on Windows, and a clean production build and dependency security audit remain release requirements.
+
+## 2.5.0 — All picture files exclusion (development candidate, not released)
+
+- Added an opt-in **Exclude all picture files** toggle in per-project Selective archive settings. It excludes recognized common image formats (JPG/JPEG, PNG, GIF, WebP, AVIF, HEIC, SVG, BMP) and source/RAW artwork (TIFF, PSD, XCF, KRA, RAW camera formats and others) regardless of individual size.
+- Preserved the narrower high-resolution graphics option separately; PDF, video, audio and 3D scene files are not automatically excluded by the picture toggle. Existing projects and their category selections remain unchanged.
+- Reused existing preview, excluded-file inventory, archive information sidecars and comparison omission classification; picture files remain untouched in the source.
+- Added file-extension, full-to-selective-to-full, linked-folder, and comparison regression tests, plus manual host-testing requirements.
+- Selective snapshots are incomplete backups: Markdown links to excluded images will point to images absent from the ZIP. No public release has been authorized.
+
+
+## 2.4.0 — Selective archive content (development candidate, not released)
+
+- Added per-project **All project files / Selective archive** modes, with existing projects defaulting to unchanged full-archive behavior.
+- Selective archives can omit non-protected files by maximum individual size and selected file categories (video, audio, high-resolution graphics, PDF); Markdown files are protected by default from these automatic exclusions. Existing explicit exclusion globs and linked-folder decisions still take precedence.
+- Added a pre-archive preview with included/omitted file counts, Markdown count, uncompressed sizes, an expandable omitted-file list, and a Cancel action. The preview is interactive in Obsidian; headless automation uses the same filtering rules without a prompt.
+- Extended archive-information Markdown/JSON sidecars with the effective filtering policy, included Markdown counts, and all individually omitted file paths, sizes, and reasons (Markdown display limited to the first 200 entries).
+- Changed comparison processing to identify files recorded as deliberately omitted in the newer archive rather than misclassifying them as source deletions or renames. Subsequent comparisons use the sidecar of the exact selected newer snapshot, not the project’s current settings.
+- Moved the single-file 4 GiB restriction check after automatic filtering, allowing deliberately excluded large files to be bypassed without trying to read them into ZIPs.
+- Added automated tests of legacy defaults, filtering, Markdown protection, comparison continuity, preview cancellation, and the 4 GiB filter boundary.
+- This development candidate still requires a clean minified build, live dependency audit, Windows/Ubuntu CI, and Obsidian host testing before initial public release.
+
+## 2.3.20 — Nested project default-storage validation (development candidate, not released)
+
+- Fixed false-positive cross-project storage validation when a whole-vault project and a nested vault-folder project use separate default `.project-versions/<project-id>` storage.
+- Kept strict rejection of custom storage within any active project source, managed-storage overlaps, and linked-path aliases.
+- Added regression tests for both project-addition orders, legitimate default storage, and prohibited custom-storage relationships.
+- Updated the Windows/Obsidian manual testing protocol with a whole-vault plus subfolder coexistence scenario.
+- Production release remains on hold pending an esbuild minified build, clean dependency audit, CI, and manual Obsidian validation.
+
+## 2.3.19 — Recovery safety and CPD conformance (development candidate, not released)
+
+- Reject symbolic-link/junction aliases in managed-storage paths and enforce realpath-based source/storage/export separation; recheck before destructive and report-writing operations.
+- Protect custom managed-storage migrations: copy and verify only the plugin-managed `archives/` and `reports/` trees, preserve unrelated files at their original location, and keep the original managed data until persistence succeeds.
+- Verify exported ZIP copies by size and SHA-256 against the managed original before explicit export cleanup. Preserve and report files whose ownership cannot be established.
+- Reserve historical snapshot version numbers even when the corresponding ZIP is missing or deleted; detect preexisting ZIP/report filename collisions before archive creation.
+- Distinguish structurally malformed ZIP files from valid snapshots in the Snapshot Manager; exclude malformed files from predecessor, export, comparison, retention, and duplicate detection. Reconcile Version History with `Missing`/`Malformed` states without discarding past records.
+- Roll back newly created snapshot ZIP and sidecar reports if creation or post-archive comparison fails before recording history; preserve the last accepted lineage.
+- Harden ZIP structure validation and verify entry size/CRC when hashing archive data.
+- Block export/managed-storage overlaps, filesystem-root project sources, aliased duplicate source paths, and unsafe cross-project source/storage relationships; warn when an existing project's source folder changes.
+- Follow the CPD's repeated-link rule: ZIP entries appear under each included link path; unique target bytes are deduplicated in statistics. Show largest detected linked files/folders even when excluded.
+- Present Archive Statistics after first snapshots and after subsequent snapshots when the comparison report is not opened automatically.
+- Extend automated safety regression tests for filesystem aliases, export collisions, migrations, missing/malformed archives, version reservations, and failure recovery.
+- The Linux verification environment has a Windows-only esbuild dependency and cannot reach the npm registry. A fallback CommonJS test bundle is provided; a minified production build, Windows CI, npm audit, and Obsidian host tests remain required before release.
+
+## 2.3.18 — Reconstructed linked-folder functionality (recovery build, not released)
+
+- Recovered directory symbolic-link/junction policy (`Ask`, `Include`, `Exclude`) and archive-information statistics using source evidence and earlier feature specifications.
+- Restored separate project-content and linked-target accounting, with Archive Information Markdown/JSON reports.
+- Recovery code differed from the earlier CPD iteration describing a dedicated Archive Statistics modal; v2.3.19 retains the report-based presentation and records the discrepancy in the CPD.
+- The new capabilities were numbered as a patch build rather than a minor version, contrary to the CPD development-versioning rule. This historical discrepancy remains documented and cannot be retroactively removed.
+
 ## 2.3.17 — Retention progressive disclosure
 
 - Development security: updated the locked `fast-uri` transitive dependency from 3.1.5 to 3.1.6 and renamed the repository-specific audit script to `submission-audit` so it cannot be confused with npm's dependency security audit.

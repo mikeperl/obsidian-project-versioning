@@ -1,11 +1,12 @@
 # Project Versioning
 
-Project Versioning creates complete ZIP snapshots of projects and shows exactly what changed between versions. It is intended for people who want understandable project-level version history without adopting Git.
+Project Versioning creates full or selectively filtered ZIP snapshots of projects and shows exactly what changed between archived versions. It is intended for people who want understandable project-level version history without adopting Git.
 
 ## Features
 
 - Version an entire vault, a vault subfolder, or another desktop folder.
-- Create complete ZIP snapshots named by date and version number.
+- Create full or selectively filtered ZIP snapshots named by date and version number.
+- In selective mode, preserve Markdown files by default while excluding large files and selected media (including comic-book archives), PDFs, and optionally Obsidian configuration data; preview and audit omitted files.
 - Compare each new snapshot with the preceding snapshot.
 - Detect unchanged, modified, added, deleted, moved, and renamed files.
 - Generate line-level unified diffs for text files and hashes for binary files.
@@ -21,6 +22,9 @@ Project Versioning creates complete ZIP snapshots of projects and shows exactly 
 - Complete folder paths while typing and browse the filesystem with explicit current-folder, parent, drive, and selection controls.
 - Open configured folders in the operating system file manager directly from the project editor.
 - Copy the latest or any chosen snapshot to a convenient export folder outside hidden storage.
+- Detect linked directory targets and select Ask/Include/Exclude per project; display physical and linked-content statistics separately.
+- Reject storage/export aliases to project data and preserve unknown files during cleanup/migration.
+- Display missing or malformed historical snapshot states and prevent reuse of recorded snapshot identities.
 
 Project Versioning is desktop-only and has no runtime dependencies. No Python, shell tools, Git installation, or external diff program is required.
 
@@ -35,7 +39,7 @@ Edit project
 → version history
 ```
 
-The first run creates the baseline snapshot. Later runs create a new snapshot and compare it with the previous one.
+The first run creates the baseline snapshot. Later runs create a new snapshot and compare it with the previous one. In Selective archive mode, an optional **Exclude all picture files** setting omits common image and artwork formats (including ordinary JPEG, PNG, and comic-book archives such as CBR/CBZ) even when they are small. An independent option can omit this vault's actual Obsidian configuration directory (including any Markdown stored there). By default, previously configured projects continue to create full snapshots. Selective archives are intentionally incomplete backups of the original source; omitted files stay on disk but cannot be recovered from that ZIP.
 
 ## Installation
 
@@ -100,13 +104,13 @@ By default, project versions are stored under the current vault:
 └── reports/
 ```
 
-This storage directory is automatically excluded from snapshots, preventing recursive archive growth. A project can instead use a vault-relative or absolute storage path.
+This storage directory is automatically excluded from snapshots, preventing recursive archive growth. A project can instead use a vault-relative or absolute storage path. Managed storage cannot be a junction/symbolic-link alias or overlap project source folders, another project's managed data, or an export folder. Existing unrelated files in custom storage are preserved during migration and cleanup.
 
 ### Changing managed storage
 
 Folder-location fields provide compact path-aware autocomplete, a searchable vault-folder selector, a filesystem folder browser, direct text entry, live validity status, and an **Open** button for existing folders. Focusing a path field shows up to six valid matching folders at the current level; hierarchical typing narrows the list one path segment at a time. Candidates that fail validation are omitted rather than shown as unusable choices. Hidden/internal dot-prefixed folders and Windows system folders are not offered. The filesystem browser is dedicated to visual navigation, always shows the full current path, lists only accessible Windows drives, and disables folder selection when the current location cannot be opened. Missing storage/export folders are identified before save and may be created when needed; the project source itself must already exist.
 
-A source folder already used by another active project is rejected; one folder cannot be registered as the source of two active versioned projects. Managed storage is also strict: custom managed storage must be completely separate from its own project source and every active project source, and managed-storage trees may not overlap one another. Custom paths inside hidden vault folders are rejected; Windows system folders such as `$RECYCLE.BIN` and `System Volume Information` are also unavailable. Leave Storage folder blank to use the automatic private storage location.
+A source folder already used by another active project is rejected; one folder cannot be registered as the source of two active versioned projects. A whole-vault project and independent projects for subfolders within that vault may coexist using their own default `.project-versions/<project-id>` storage; that internal namespace is excluded from whole-vault snapshots. Managed storage is also strict: custom managed storage must be completely separate from its own project source and every active project source, and managed-storage trees may not overlap one another. Custom paths inside hidden vault folders are rejected; Windows system folders such as `$RECYCLE.BIN` and `System Volume Information` are also unavailable. Leave Storage folder blank to use the automatic private storage location.
 
 Changing an existing project's managed storage folder migrates and verifies the complete archive/report history before the setting is saved. Returning from custom storage to **Default** always returns that project to the same `.project-versions/<project-id>` identity. If a removed project kept its default managed history and the same source folder is later re-added, Project Versioning reconnects to that retained default lineage instead of creating a numbered replacement folder. Non-empty unrelated destinations are rejected before save rather than merged or overwritten.
 
@@ -221,7 +225,7 @@ Project Versioning is designed for local, offline use.
 - **Cloud:** Project contents are never uploaded by the plugin. A separate sync or backup service may independently copy files placed inside a synchronized vault.
 - **External programs:** Normal versioning, comparison, export, and cleanup do not execute external applications. The explicit **Open** folder buttons launch only the configured existing folder in the operating system file manager. This uses direct process arguments with no command shell and performs no network access.
 
-Symbolic links encountered while scanning a project are skipped rather than followed.
+Directory symbolic links and Windows junctions follow the configured Ask/Include/Exclude policy. File symbolic links and nested links within linked targets are skipped; archive traversal never follows links without the applicable project policy.
 
 ## Current limits
 
@@ -230,25 +234,17 @@ Symbolic links encountered while scanning a project are skipped rather than foll
 - Modified-move detection uses line-content similarity rather than semantic analysis.
 - Snapshot creation is not transactional with simultaneous edits. Avoid editing important project files while a release snapshot is being created.
 
-## Development
+## Availability and source
 
-Requirements: Node.js 20 or later. The repository includes `package-lock.json`; use reproducible clean installs.
+The public distribution repository provides the release files and documentation. The maintained TypeScript source repository is private; this source-availability arrangement is separate from the MIT license accompanying distributed artifacts.
 
-```bash
-npm ci
-npm audit
-npm run check
-```
+The Community Plugins installation option becomes available only after Obsidian accepts the plugin into its directory. Until then, use the production files from an officially published GitHub release for manual installation. Do not install a development or recovery-only test bundle as a production release.
 
-For active development:
+## Support development
 
-```bash
-npm run dev
-```
+Project Versioning is free to use. All features are available without payment.
 
-Production builds generate a minified `main.js`. The repository intentionally ignores `main.js`; release builds attach it to GitHub releases instead.
-
-See [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) and [`CONTRIBUTING.md`](CONTRIBUTING.md).
+You can support continued development and maintenance through an [optional one-time PayPal contribution](https://www.paypal.com/donate/?hosted_button_id=TM6S72Q9PQ93A). Contributions do not affect feature availability.
 
 ## Security
 

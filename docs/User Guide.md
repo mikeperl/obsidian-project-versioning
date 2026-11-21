@@ -2,7 +2,9 @@
 
 ## Purpose
 
-**Project Versioning** is an Obsidian desktop plugin for creating complete ZIP snapshots of projects, comparing project versions, and generating human-readable audit reports.
+**Project Versioning** is an Obsidian desktop plugin for creating full or selective ZIP snapshots of projects, comparing project versions, and generating human-readable audit reports.
+
+**Illustrations:** The interface images use fictional projects, paths, and example data. They are designed to resemble realistic Obsidian screenshots as closely as practical for documentation purposes and may differ slightly from the appearance of your installed Obsidian version.
 
 A versioned project can be:
 - the entire Obsidian vault;
@@ -30,7 +32,7 @@ Version history updated
 ```
 
 The plugin can:
-- create complete ZIP snapshots;
+- create full or selective ZIP snapshots;
 - assign automatic date/version filenames;
 - compare each new snapshot with the preceding snapshot;
 - compare any two existing snapshots;
@@ -75,10 +77,10 @@ Each project row displays:
 Example:
 
 ```text
-Source: Personality Development Theory
-Storage: .project-versions/personality-development-theory
-Export: D:\Project Exports
-Prefix: PDT
+Source: Sample Research
+Storage: .project-versions/sample-research
+Export: D:\Sample Exports
+Prefix: SR
 ```
 
 Each project provides four principal actions.
@@ -92,8 +94,8 @@ If an earlier snapshot exists, the new snapshot is automatically compared with i
 Example:
 
 ```text
-PDT - 2026-08-20 V1.zip
-PDT - 2026-08-20 V2.zip
+SR - 2026-08-20 V1.zip
+SR - 2026-08-20 V2.zip
 ```
 
 When `V2` is created, the plugin compares it with `V1`.
@@ -120,6 +122,8 @@ The actual project source folder is never deleted by either option.
 
 ![Add or edit project dialog](images/02-add-edit-project.png)
 
+*Illustration: the screenshot below shows a realistic example of the current Add/Edit Project dialog, including the Selective archive controls.*
+
 The same dialog is used for:
 - creating a new versioned project;
 - editing an existing project.
@@ -131,9 +135,9 @@ Human-readable project name displayed throughout the plugin. Because the project
 Examples:
 
 ```text
-Personality Development Theory
-Project Versioning
-Dream Research
+Sample Research
+Example Codebase
+Writing Notes
 ```
 
 ## Project folder
@@ -151,13 +155,13 @@ Allowed forms include:
 ### Vault-relative folder
 
 ```text
-20 - Projects/Personality Development Theory
+Projects/Sample Research
 ```
 
 ### Absolute desktop folder
 
 ```text
-D:\Research\Personality Development Theory
+D:\Examples\Sample Research
 ```
 
 The path can still be typed or pasted directly. While typing, Project Versioning suggests up to six valid matching folders from the current path level; typing a separator moves completion into the next level. Folders that are invalid for the current field are omitted rather than shown as disabled choices. Arrow keys move through suggestions, Enter or Tab accepts one, and Esc dismisses the list. Folder controls are also available:
@@ -174,14 +178,14 @@ Controls the beginning of snapshot filenames.
 For example:
 
 ```text
-PDT
+SR
 ```
 
 produces:
 
 ```text
-PDT - 2026-08-20 V1.zip
-PDT - 2026-08-20 V2.zip
+SR - 2026-08-20 V1.zip
+SR - 2026-08-20 V2.zip
 ```
 
 If left blank, the setting remains blank and new snapshots use the **current project name** as their prefix. An explicit prefix uses the same filename-safety validation as the project name. Invalid characters are rejected rather than silently replaced.
@@ -201,14 +205,14 @@ If left blank, the default is:
 For example:
 
 ```text
-<Vault>\.project-versions\pdt\
+<Vault>\.project-versions\sample-research\
 ```
 
 This hidden location is normally preferable because it keeps versioning files separate from project content.
 
 A vault-relative or absolute path can also be entered manually. The field provides compact path-aware autocomplete plus **Default**, **Open**, **Vault...**, and **Browse...** actions. Focusing the field shows valid visible folders at the current level; typing narrows the list hierarchically. **Default** clears a custom location and returns the project to its stable private `.project-versions/<project-id>` storage. Moving to custom storage and later returning to Default does not create a numbered replacement folder. The filesystem browser can select an empty destination folder, which is useful when migrating managed storage.
 
-Custom managed storage is deliberately isolated. It cannot be the same as, inside, or contain the project source; it cannot overlap any other active project source; and managed-storage trees cannot overlap one another, including parent/child relationships with active or retained project storage. Custom paths inside hidden vault folders are rejected. Windows system folders such as `$RECYCLE.BIN` and `System Volume Information` are also unavailable. If the entire vault is versioned, automatic default storage remains permitted because `.project-versions` is a protected internal namespace excluded from snapshots.
+Custom managed storage is deliberately isolated. It cannot be the same as, inside, or contain the project source; it cannot overlap any other active project source; and managed-storage trees cannot overlap one another, including parent/child relationships with active or retained project storage. Custom paths inside hidden vault folders are rejected. Windows system folders such as `$RECYCLE.BIN` and `System Volume Information` are also unavailable. If the entire vault is versioned, automatic default storage remains permitted because `.project-versions` is a protected internal namespace excluded from snapshots. The same exception applies to separate subfolder projects coexisting with an entire-vault project, provided each uses its own default managed-storage identity.
 
 The editor validates managed storage before Save. A configured folder may be created when needed, but a storage migration destination must be empty. If a removed project retained default managed history and the same source folder is later re-added with default storage, the retained project identity is reused so the old history remains on the same lineage.
 
@@ -219,7 +223,7 @@ Optional folder where snapshots can be copied for convenient access. The path su
 Example:
 
 ```text
-D:\Project Exports
+D:\Sample Exports
 ```
 
 This allows the plugin to keep its authoritative managed archive in hidden storage while also making selected ZIP files easily accessible to the user.
@@ -247,6 +251,26 @@ This setting is visible only while a valid **Snapshot export folder** is configu
 The managed version remains in Project Versioning storage.
 
 If this setting is disabled, snapshots can still be exported manually.
+
+## Archive content: full and selective snapshots
+
+Each project has an **Archive content** section in Add/Edit Project. By default, **All project files (current behavior)** preserves the existing full-archive behavior and respects the ordinary exclusion patterns and linked-folder policy. Existing projects retain this mode after upgrading.
+
+For compact ZIPs, select **Selective archive**, then configure:
+
+- **Protect Markdown files** (enabled by default): `.md` and `.markdown` files are not removed by the new automatic size and file-type rules. Existing explicit exclude patterns and excluded linked folders still take precedence.
+- **Maximum size for other files (mebibytes)**: files larger than this size are omitted unless Markdown protection applies. The limit is per file, not per ZIP.
+- **Exclude all picture files**: omit recognized pictures and artwork, including JPG/JPEG, PNG, GIF, WebP, AVIF, HEIC, SVG, BMP, TIFF, PSD, GIMP XCF, Krita KRA, and RAW-camera formats and comic-book archives (CBR, CBZ, CB7, CBT) regardless of size. Useful for keeping an artist reference-picture library out of a compact ZIP. This is an extension-based rule; unfamiliar or extensionless image files may require an explicit exclusion pattern.
+- **Exclude Obsidian configuration folder** (disabled by default): omit this vault's actual configuration directory, as identified by Obsidian, including plugin data, themes, settings, and any files stored inside it. This also applies if the folder is included through a linked directory. Markdown protection does not override this explicit folder exclusion. It applies only to Selective archive mode and does not delete source files. The exclusion also applies to junction or symbolic-link aliases of the same physical configuration directory; if the directory cannot be resolved, snapshot creation reports an error rather than silently including its contents.
+- **Exclude video/audio/high-resolution graphics/PDF files**: independent choices that omit recognized filename extensions regardless of size. The narrower high-resolution graphics category includes TIFF, Photoshop, RAW-camera, HDR/EXR and certain source-artwork formats, but not ordinary JPEG or PNG. Selecting all pictures also covers the still-image formats in this narrower category, so both toggles need not be enabled for them.
+
+![Selective archive preview](images/15-selective-archive-preview.png)
+
+Before a selective snapshot starts, a preview lists the numbers and uncompressed sizes of included and omitted files, the included Markdown count, and up to 200 individual excluded paths. **Create snapshot** proceeds, while **Cancel** or closing the preview leaves no new snapshot. The preview does not predict compressed ZIP size.
+
+The resulting managed **Archive Information.md** and **Archive Information.json** files record the filtering policy and omitted paths. The JSON contains the complete omitted-file inventory; the Markdown report shows up to the first 200 entries. Comparison reports distinguish paths deliberately omitted by the newer snapshot from deletions among archived entries. Older snapshot records that lack such an inventory cannot be retrospectively classified with certainty.
+
+**Important:** A selective snapshot is not a complete backup of the source folder. Excluded files remain untouched in their source locations but cannot be recovered from the ZIP. Markdown files referring to excluded pictures retain their links, but those pictures are not included in the extracted ZIP. Existing archive history, snapshot management, and export behavior are unchanged. The configuration folder may be required to restore plugin settings or the original vault environment, so retain a separate complete backup when needed. An individual included file of 4 GiB or larger is still unsupported; an excluded large file is skipped before ZIP creation.
 
 ## Extra snapshot exclusions
 
@@ -286,8 +310,8 @@ A modified text file is classified as metadata-only only when every changed nonb
 This helps distinguish changes such as:
 
 ```diff
-- synchronized_with: PDT-8.12
-+ synchronized_with: PDT-8.13
+- synchronized_with: SR-1.02
++ synchronized_with: SR-1.03
 ```
 
 from genuine substantive changes to the document.
@@ -533,15 +557,15 @@ PREFIX - YYYY-MM-DD Vn.zip
 Example:
 
 ```text
-PDT - 2026-08-20 V1.zip
-PDT - 2026-08-20 V2.zip
-PDT - 2026-08-20 V3.zip
+SR - 2026-08-20 V1.zip
+SR - 2026-08-20 V2.zip
+SR - 2026-08-20 V3.zip
 ```
 
 On a new date:
 
 ```text
-PDT - 2026-08-21 V1.zip
+SR - 2026-08-21 V1.zip
 ```
 
 The version counter therefore represents multiple snapshots created on the same date.
@@ -563,9 +587,9 @@ Entries are displayed by archive filename.
 Example:
 
 ```text
-PDT - 2026-08-19 V2.zip
-PDT - 2026-08-20 V1.zip
-PDT - 2026-08-20 V2.zip
+SR - 2026-08-19 V2.zip
+SR - 2026-08-20 V1.zip
+SR - 2026-08-20 V2.zip
 ```
 
 ---
@@ -611,8 +635,8 @@ Changed text files receive line-level comparisons when they fall below the confi
 Example:
 
 ```diff
-- synchronized_with: PDT-8.12
-+ synchronized_with: PDT-8.13
+- synchronized_with: SR-1.02
++ synchronized_with: SR-1.03
 ```
 
 Larger files are still detected as changed even when full line-by-line rendering is suppressed.
@@ -842,7 +866,7 @@ Archive & Compare
         ↓
 Export latest snapshot
         ↓
-D:\Project Exports\PDT - 2026-08-20 V3.zip
+D:\Sample Exports\SR - 2026-08-20 V3.zip
 ```
 
 ## Export chosen snapshot
@@ -886,7 +910,7 @@ The managed archive remains authoritative.
         ↓
 managed snapshot
 
-D:\Project Exports
+D:\Sample Exports
         ↓
 convenience copy
 ```
@@ -925,13 +949,13 @@ Example:
 Original path:
 
 ```text
-D:\Research\Personality Development Theory
+D:\Examples\Sample Research
 ```
 
 New path:
 
 ```text
-D:\Projects\PDT
+D:\Examples\Sample Research
 ```
 
 Procedure:
@@ -1087,9 +1111,9 @@ Each project has its own subfolder:
 
 ```text
 .project-versions\
-├── pdt\
-├── dream-research\
-└── project-versioning\
+├── sample-research\
+├── writing-notes\
+└── example-codebase\
 ```
 
 This location is deliberately hidden from the normal Obsidian File Explorer.
@@ -1333,6 +1357,33 @@ Settings → Hotkeys
 
 ---
 
+---
+
+# 24. Linked Folders and Archive Statistics
+
+Project Versioning detects directory symbolic links and Windows junctions encountered in the project tree. The project setting **Linked-folder contents** supports **Ask** (default), **Always exclude**, and **Always include**. With Ask, the snapshot dialog lists linked folders, their resolved targets, and sizes. You can choose inclusion or exclusion and optionally **Remember this choice for this project**. Cancel aborts the snapshot.
+
+- **Exclude linked-folder contents**: Linked targets are not added to ZIP archives; the physical project is still archived.
+- **Include linked-folder contents**: Files in linked targets are stored under their linked paths in the ZIP. Repeated links produce entries under each linked path; unique physical data is counted once in unique-target statistics. Existing glob exclusions still apply.
+- Nested symbolic links inside linked targets are skipped to prevent unintentional further traversal and cycles. Links to the plugin's own snapshot or export storage are never archived.
+- Broken directory links are skipped. File links are not dereferenced. This feature concerns directory links, not file links.
+
+Each new snapshot writes an **Archive Information.md** and JSON sidecar into the project's managed `reports` folder, containing **Archive Statistics** and **Linked Folders**. The report distinguishes real project contents, unique linked target data, inclusion/exclusion, actual ZIP bytes and file counts, largest files, and largest folders. The same statistics appear in new comparison Markdown reports, and the **Open latest archive information** command displays the report. Historic archives created before this feature cannot be assigned retrospective link statistics reliably.
+
+When linked folders are excluded, their contents are not copied into the ZIP. The plugin may still enumerate their contents to calculate the linked-folder size statistics displayed before a snapshot.
+
+
+# 25. Data Safety and Recovery
+
+- Custom managed storage that passes through junctions or symbolic links is rejected, including links in parent directories. Existing configurations with such paths must be corrected before normal operations resume.
+- Export folders must not equal, contain, or be contained in managed storage, including through linked path aliases. Export may be inside a project source only when it is not exactly the source; such copies are excluded from project ZIPs.
+- Manual export-copy cleanup deletes only byte-identical copies that can be verified against the still-existing managed ZIP. Unverifiable same-named files are preserved and reported; the ZIP's absence cannot be used as evidence of ownership.
+- Managed-storage migration transfers `archives/` and `reports/` only. Unrelated files at the old storage root remain there; versioning history is preserved and verified before the old managed trees are deleted.
+- Snapshot Manager shows structurally invalid ZIPs as **Malformed**; they may be explicitly deleted but are not used as valid snapshots. History reconciles absent files as **Missing**, retaining their identities. Corrupt ZIP payloads may require a full read/CRC check to detect beyond the initial structural check.
+- Version numbers recorded in Version History are never reused after an archive is missing or deleted.
+- The first archive opens its Archive Statistics report; later snapshots display either the combined comparison report or the statistics report, depending on comparison-display settings.
+
+---
 
 # Conclusion
 

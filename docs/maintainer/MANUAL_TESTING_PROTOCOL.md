@@ -2614,3 +2614,39 @@ Mark PASS only when every required test above passes and no unresolved defect co
 **Remaining concerns:**  
 
 **Recommended next action:**
+
+
+## Recovery verification — Linked-folder snapshots (v2.3.18)
+
+- [ ] Windows NTFS junction to a large folder is detected and the dialog shows its target and correct size.
+- [ ] Windows directory symbolic link is detected; the same test is repeated on macOS/Linux when available.
+- [ ] Default Ask policy offers Exclude, Include, Cancel, and Remember choice.
+- [ ] Exclude does not archive linked contents but reports their unique size correctly.
+- [ ] Include archives external files beneath the linked folder path and statistics reflect actual ZIP contents.
+- [ ] Two links to the same target count it once and do not duplicate archived files.
+- [ ] Linked targets containing further links/cycles do not recurse infinitely.
+- [ ] Broken or inaccessible links do not silently archive unexpected data; inaccessible targets produce a clear error where appropriate.
+- [ ] Links to managed storage or the snapshot-export directory do not archive the plugin's own stored data.
+- [ ] Saved Always include/Always exclude policies suppress prompting; Ask retains prompting.
+- [ ] Cancel or modal close aborts without creating a new ZIP.
+- [ ] Largest files/folders, byte counts, compression ratio, and included/excluded status match independent measurements.
+- [ ] Archive Information and comparison report Markdown render correctly with long paths on Windows.
+- [ ] ZIP extracts correctly, compares against older snapshots correctly, and existing project/snapshot manager functionality is unaffected.
+
+
+# Recovery verification addendum — development v2.3.19
+
+**All destructive tests below require a disposable vault and disposable external folders.** Do not test on personal project data. Record Pass/Fail, environment, and screenshots/logs for every test.
+
+- [ ] With a custom managed-storage junction pointing into project source, cleanup, snapshot creation, comparison, export, and migration refuse without changing any source file.
+- [ ] With the default `.project-versions` folder replaced by a junction, orphaned-data cleanup refuses without following it.
+- [ ] Custom storage that overlaps another project's source/storage through a junction is blocked in project editing and before deletion.
+- [ ] Export equal to, nested within, or containing managed storage is blocked. Source-folder changes show a history-continuity warning.
+- [ ] Replacing a same-named exported ZIP with unrelated bytes preserves it when explicit export-copy cleanup is selected and reports the conflict. A byte-identical copy is removable after confirmation.
+- [ ] Changing custom storage across drives copies only `archives/` and `reports/`; unrelated files remain in the original folder. Failures retain old usable history.
+- [ ] Delete a historical snapshot ZIP manually, reopen Version History and confirm `Missing`; next snapshot uses a fresh version number and records its own history row.
+- [ ] Place a malformed ZIP in archives: Snapshot Manager labels `Malformed`, latest export/compare/retention/duplicates ignore it, and explicit deletion is available.
+- [ ] Induce failure after ZIP creation but before history append (e.g. conflicting archive-info filename): no new valid ZIP or misleading history row remains.
+- [ ] Create two junctions to the same external folder; Include archives both logical paths, unique-target bytes count once, and Exclude adds neither link path to the ZIP.
+- [ ] First snapshot displays Archive Statistics; subsequent snapshots display either comparison statistics or standalone Archive Statistics as configured.
+- [ ] Run normal `npm ci`, `npm audit`, `npm run check`; run CI on Ubuntu and Windows; smoke-test the exact minified release assets.

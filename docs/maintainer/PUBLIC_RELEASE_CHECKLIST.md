@@ -1,4 +1,6 @@
-# Public release checklist — 2.3.17
+# Development verification and public release checklist — 2.3.19 (HOLD)
+
+**Release hold:** v2.3.19 is a reconstructed development candidate. No public-release version/tag has been authorized; the fallback `main.js` is unminified and MUST be replaced by the exact tested minified production build before any release.
 
 ## Repository
 
@@ -22,25 +24,31 @@
 - [x] No hardcoded `.obsidian` configuration-directory access.
 - [x] No TypeScript/HTML inline styling; conditional UI styling uses plugin CSS classes.
 - [x] Settings headings use the Obsidian `Setting` API.
-- [x] Production output is minified.
+- [ ] Exact v2.3.19 production `main.js` regenerated and verified minified in a clean build environment.
 - [x] No telemetry or network requests.
 - [x] External file access, external-program launch, and deletion behavior are disclosed.
 - [x] Plugin settings use `Plugin.loadData()` / `Plugin.saveData()`.
 
 ## Before creating the release tag
 
+- [ ] Reproduce the formerly destructive alias-cleanup and export-collision tests on a disposable Windows vault and confirm source/external files survive.
+- [ ] Validate actual Windows junction handling and repeated-link inclusion, including disk sizes and path behavior.
+- [ ] Test missing/malformed snapshots, version reservations, and failed-comparison cleanup through Obsidian.
+- [ ] Verify storage migration preserves unrelated files in their original location across Windows volumes.
+- [ ] Review the CPD's still-open Exclude-versus-size-enumeration wording with the project owner.
+
 - [ ] Extract or clone into a clean working directory on Windows.
 - [ ] Run `npm ci`.
 - [ ] Run `npm audit` and confirm zero known vulnerabilities.
 - [ ] Run `npm run check`.
-- [ ] Confirm `manifest.json` and `package.json` both contain `2.3.17`.
+- [ ] Confirm `manifest.json`, `package.json`, lockfile, and `versions.json` all identify the exact approved candidate (currently development v2.3.19).
 - [ ] Complete the applicable final manual tests in a disposable Obsidian desktop vault.
 - [ ] Push `main` and confirm CI passes on Ubuntu and Windows.
 - [ ] Recheck that `project-versioning` and `Project Versioning` remain unique in the Community directory.
 
 ## Release and release-asset verification
 
-- [ ] Create annotated tag `2.3.17` with no `v` prefix and push it.
+- [ ] After owner approval, assign the approved public-release version, rebuild/retest the exact assets, and create the matching annotated tag (no `v` prefix).
 - [ ] Confirm the release workflow passes.
 - [ ] Confirm the draft release contains individual `main.js`, `manifest.json`, and `styles.css` assets.
 - [ ] Confirm GitHub displays provenance attestations for the release assets.
